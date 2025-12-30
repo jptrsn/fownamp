@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:clipboard/clipboard.dart';
-import 'package:finamp/services/censored_log.dart';
+import 'package:fownamp/services/censored_log.dart';
 import 'package:logging/logging.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';

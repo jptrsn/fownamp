@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:fownamp/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/finamp_models.dart';
@@ -86,10 +86,8 @@ class _CustomDownloadLocationFormState
                       child: Text(
                         field.errorText ??
                             AppLocalizations.of(context)!.unknownError,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(color: Theme.of(context).colorScheme.error),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.error),
                       ),
                     ),
                 ],

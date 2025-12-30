@@ -1,4 +1,4 @@
-import 'package:finamp/models/jellyfin_models.dart';
+import 'package:fownamp/models/jellyfin_models.dart';
 import 'package:flutter/material.dart';
 
 class AlphabetList extends StatefulWidget {
@@ -6,7 +6,8 @@ class AlphabetList extends StatefulWidget {
 
   final String sortOrder;
 
-  const AlphabetList({super.key, required this.callback, required this.sortOrder});
+  const AlphabetList(
+      {super.key, required this.callback, required this.sortOrder});
 
   @override
   State<AlphabetList> createState() => _AlphabetListState();
@@ -18,7 +19,6 @@ class _AlphabetListState extends State<AlphabetList> {
         return String.fromCharCode('A'.codeUnitAt(0) + index);
       });
 
-
   List<String> get getAlphabet => alphabet;
 
   @override
@@ -26,7 +26,6 @@ class _AlphabetListState extends State<AlphabetList> {
     orderTheList(alphabet);
     super.initState();
   }
-
 
   @override
   void didUpdateWidget(AlphabetList oldWidget) {

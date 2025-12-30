@@ -1,9 +1,9 @@
-import 'package:finamp/components/error_snackbar.dart';
-import 'package:finamp/models/jellyfin_models.dart';
-import 'package:finamp/services/jellyfin_api_helper.dart';
-import 'package:finamp/services/music_player_background_task.dart';
+import 'package:fownamp/components/error_snackbar.dart';
+import 'package:fownamp/models/jellyfin_models.dart';
+import 'package:fownamp/services/jellyfin_api_helper.dart';
+import 'package:fownamp/services/music_player_background_task.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:fownamp/l10n/app_localizations.dart';
 import 'package:get_it/get_it.dart';
 
 class FavoriteButton extends StatefulWidget {

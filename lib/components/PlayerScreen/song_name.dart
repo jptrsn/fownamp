@@ -1,10 +1,10 @@
 import 'package:audio_service/audio_service.dart';
-import 'package:finamp/models/jellyfin_models.dart';
-import 'package:finamp/screens/artist_screen.dart';
-import 'package:finamp/services/finamp_settings_helper.dart';
+import 'package:fownamp/models/jellyfin_models.dart';
+import 'package:fownamp/screens/artist_screen.dart';
+import 'package:fownamp/services/finamp_settings_helper.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:fownamp/l10n/app_localizations.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../screens/album_screen.dart';

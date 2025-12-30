@@ -5,7 +5,7 @@ import 'dart:math';
 import 'package:android_id/android_id.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:finamp/services/offline_listen_helper.dart';
+import 'package:fownamp/services/offline_listen_helper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';

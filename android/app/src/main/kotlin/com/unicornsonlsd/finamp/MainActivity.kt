@@ -1,4 +1,4 @@
-package com.unicornsonlsd.finamp
+package dev.educoder.fownamp
 
 import io.flutter.embedding.android.FlutterActivity
 

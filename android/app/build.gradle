@@ -29,7 +29,8 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    compileSdkVersion 34
+    namespace = "dev.educoder.fownamp"
+    compileSdkVersion 36
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
@@ -40,9 +41,9 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.unicornsonlsd.finamp"
-        minSdkVersion 21
-        targetSdkVersion 34
+        applicationId "dev.educoder.fownamp"
+        minSdkVersion flutter.minSdkVersion
+        targetSdkVersion 36
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
@@ -64,6 +65,14 @@ android {
             applicationIdSuffix '.debug'
             minifyEnabled true // avoid dexing issues
         }
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
     }
 }
 

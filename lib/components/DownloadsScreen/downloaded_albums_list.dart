@@ -1,5 +1,5 @@
-import 'package:finamp/services/jellyfin_api_helper.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:fownamp/services/jellyfin_api_helper.dart';
+import 'package:fownamp/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -47,27 +47,24 @@ class _DownloadedAlbumsListState extends State<DownloadedAlbumsList> {
             leading: AlbumImage(item: album.item),
             title: Text(album.item.name ?? "Unknown Name"),
             trailing: IconButton(
-                icon: const Icon(Icons.delete),
-                onPressed: () => showDialog(
-                  context: context,
-                  builder: (context) => ConfirmationPromptDialog(
-                    promptText: AppLocalizations.of(context)!
-                        .deleteDownloadsPrompt(
-                            album.item.name ?? "",
-                            album.item.type == "Playlist"
-                                ? "playlist"
-                                : "album"),
-                    confirmButtonText: AppLocalizations.of(context)!
-                        .deleteDownloadsConfirmButtonText,
-                    abortButtonText: AppLocalizations.of(context)!
-                        .deleteDownloadsAbortButtonText,
-                    onConfirmed: () async {
-                      await deleteAlbum(context, album);
-                      setState(() {});
-                    },
-                    onAborted: () {},
-                  ),
+              icon: const Icon(Icons.delete),
+              onPressed: () => showDialog(
+                context: context,
+                builder: (context) => ConfirmationPromptDialog(
+                  promptText: AppLocalizations.of(context)!
+                      .deleteDownloadsPrompt(album.item.name ?? "",
+                          album.item.type == "Playlist" ? "playlist" : "album"),
+                  confirmButtonText: AppLocalizations.of(context)!
+                      .deleteDownloadsConfirmButtonText,
+                  abortButtonText: AppLocalizations.of(context)!
+                      .deleteDownloadsAbortButtonText,
+                  onConfirmed: () async {
+                    await deleteAlbum(context, album);
+                    setState(() {});
+                  },
+                  onAborted: () {},
                 ),
+              ),
             ),
             subtitle: AlbumFileSize(
               downloadedParent: album,
@@ -112,25 +109,23 @@ class _DownloadedSongsInAlbumListState
           title: Text(song.name ?? "Unknown Name"),
           leading: AlbumImage(item: song),
           trailing: IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: () => showDialog(
-                context: context,
-                builder: (context) => ConfirmationPromptDialog(
-                  promptText: AppLocalizations.of(context)!
-                      .deleteDownloadsPrompt(
-                          song.name ?? "",
-                          "track"),
-                  confirmButtonText: AppLocalizations.of(context)!
-                      .deleteDownloadsConfirmButtonText,
-                  abortButtonText: AppLocalizations.of(context)!
-                      .deleteDownloadsAbortButtonText,
-                  onConfirmed: () async {
-                    await deleteSong(context, song);
-                    setState(() {});
-                  },
-                  onAborted: () {},
-                ),
+            icon: const Icon(Icons.delete),
+            onPressed: () => showDialog(
+              context: context,
+              builder: (context) => ConfirmationPromptDialog(
+                promptText: AppLocalizations.of(context)!
+                    .deleteDownloadsPrompt(song.name ?? "", "track"),
+                confirmButtonText: AppLocalizations.of(context)!
+                    .deleteDownloadsConfirmButtonText,
+                abortButtonText: AppLocalizations.of(context)!
+                    .deleteDownloadsAbortButtonText,
+                onConfirmed: () async {
+                  await deleteSong(context, song);
+                  setState(() {});
+                },
+                onAborted: () {},
               ),
+            ),
           ),
           subtitle: ItemMediaSourceInfo(
             songId: song.id,

@@ -114,3 +114,4 @@ app.*.map.json
 windows/
 linux/
 
+lib/l10n/app_localizations_*.dart

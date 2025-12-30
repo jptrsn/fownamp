@@ -1,13 +1,13 @@
 import 'dart:collection';
 
-import 'package:finamp/components/AlbumScreen/download_dialog.dart';
-import 'package:finamp/services/finamp_settings_helper.dart';
-import 'package:finamp/services/finamp_user_helper.dart';
+import 'package:fownamp/components/AlbumScreen/download_dialog.dart';
+import 'package:fownamp/services/finamp_settings_helper.dart';
+import 'package:fownamp/services/finamp_user_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
-import 'package:finamp/services/downloads_helper.dart';
-import 'package:finamp/services/jellyfin_api_helper.dart';
+import 'package:fownamp/services/downloads_helper.dart';
+import 'package:fownamp/services/jellyfin_api_helper.dart';
 import 'package:logging/logging.dart';
 
 import '../models/finamp_models.dart';

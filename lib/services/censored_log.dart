@@ -1,4 +1,4 @@
-import 'package:finamp/services/contains_login.dart';
+import 'package:fownamp/services/contains_login.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logging/logging.dart';
 

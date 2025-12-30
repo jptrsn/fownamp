@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:fownamp/l10n/app_localizations.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 
@@ -73,7 +73,7 @@ class _ArtistDownloadButtonState extends State<ArtistDownloadButton> {
                   icon: deleteAlbums
                       ? const Icon(Icons.delete)
                       : const Icon(Icons.download),
-                  onPressed:() async {
+                  onPressed: () async {
                     if (deleteAlbums) {
                       showDialog(
                         context: context,
@@ -81,7 +81,9 @@ class _ArtistDownloadButtonState extends State<ArtistDownloadButton> {
                           promptText: AppLocalizations.of(context)!
                               .deleteDownloadsPrompt(
                                   widget.artist.name ?? "",
-                                  widget.artist.type == "MusicArtist" ? "artist" : "genre"),
+                                  widget.artist.type == "MusicArtist"
+                                      ? "artist"
+                                      : "genre"),
                           confirmButtonText: AppLocalizations.of(context)!
                               .deleteDownloadsConfirmButtonText,
                           abortButtonText: AppLocalizations.of(context)!
@@ -89,17 +91,18 @@ class _ArtistDownloadButtonState extends State<ArtistDownloadButton> {
                           onConfirmed: () async {
                             try {
                               final deleteFutures = snapshot.data!.map((e) =>
-                                  _downloadsHelper.deleteParentAndChildDownloads(
-                                      jellyfinItemIds: _downloadsHelper
-                                          .getDownloadedParent(e.id)!
-                                          .downloadedChildren
-                                          .keys
-                                          .toList(),
-                                      deletedFor: e.id));
+                                  _downloadsHelper
+                                      .deleteParentAndChildDownloads(
+                                          jellyfinItemIds: _downloadsHelper
+                                              .getDownloadedParent(e.id)!
+                                              .downloadedChildren
+                                              .keys
+                                              .toList(),
+                                          deletedFor: e.id));
                               await Future.wait(deleteFutures);
                               ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text("Downloads deleted.")));
+                                  const SnackBar(
+                                      content: Text("Downloads deleted.")));
                               final undownloadedAlbums =
                                   _getUndownloadedAlbums(snapshot.data!);
                               setState(() {

@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod/legacy.dart';
 import 'package:get_it/get_it.dart';
 import 'package:octo_image/octo_image.dart';
 import 'package:simple_gesture_detector/simple_gesture_detector.dart';

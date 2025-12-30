@@ -1,9 +1,10 @@
+import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:android_id/android_id.dart';
 import 'package:chopper/chopper.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:finamp/services/http_aggregate_logging_interceptor.dart';
+import 'package:fownamp/services/http_aggregate_logging_interceptor.dart';
 import 'package:get_it/get_it.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -369,32 +370,7 @@ abstract class JellyfinApi extends ChopperService {
       // Converts data to & from JSON and adds the application/json header.
       // converter: JsonConverter(),
       interceptors: [
-        /// Gets baseUrl from SharedPreferences.
-        (Request request) async {
-          final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
-          final finampUserHelper = GetIt.instance<FinampUserHelper>();
-
-          String authHeader = await getAuthHeader();
-
-          // If baseUrlTemp is null, use the baseUrl of the current user.
-          // If baseUrlTemp is set, we're setting up a new user and should use it instead.
-          Uri baseUri = jellyfinApiHelper.baseUrlTemp ??
-              Uri.parse(finampUserHelper.currentUser!.baseUrl);
-
-          // Add the request path on to the baseUrl
-          baseUri = baseUri.replace(
-              pathSegments:
-                  baseUri.pathSegments.followedBy(request.uri.pathSegments));
-
-          return request.copyWith(
-            uri: baseUri,
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": authHeader,
-            },
-          );
-        },
-
+        _AuthInterceptor(),
         HttpAggregateLoggingInterceptor(),
       ],
     );
@@ -443,4 +419,36 @@ Future<String> getAuthHeader() async {
   // In some cases non-ASCII characters can end up in the header, usually via
   // iOS device name
   return authHeader.replaceAll(notAsciiRegex, "_");
+}
+
+class _AuthInterceptor implements Interceptor {
+  @override
+  FutureOr<Response<BodyType>> intercept<BodyType>(
+    Chain<BodyType> chain,
+  ) async {
+    final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
+    final finampUserHelper = GetIt.instance<FinampUserHelper>();
+
+    String authHeader = await getAuthHeader();
+
+    // If baseUrlTemp is null, use the baseUrl of the current user.
+    // If baseUrlTemp is set, we're setting up a new user and should use it instead.
+    Uri baseUri = jellyfinApiHelper.baseUrlTemp ??
+        Uri.parse(finampUserHelper.currentUser!.baseUrl);
+
+    // Add the request path on to the baseUrl
+    baseUri = baseUri.replace(
+        pathSegments:
+            baseUri.pathSegments.followedBy(chain.request.uri.pathSegments));
+
+    final request = chain.request.copyWith(
+      uri: baseUri,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": authHeader,
+      },
+    );
+
+    return chain.proceed(request);
+  }
 }

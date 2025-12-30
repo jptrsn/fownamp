@@ -1,7 +1,7 @@
 import 'dart:isolate';
 import 'dart:ui';
 
-import 'package:finamp/services/downloads_helper.dart';
+import 'package:fownamp/services/downloads_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:get_it/get_it.dart';

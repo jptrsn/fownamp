@@ -1,4 +1,4 @@
-import 'package:finamp/services/finamp_settings_helper.dart';
+import 'package:fownamp/services/finamp_settings_helper.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -8,18 +8,12 @@ import '../../services/jellyfin_api_helper.dart';
 import '../screens/artist_screen.dart';
 
 List<TextSpan> ArtistsTextSpans(
-    BaseItemDto item,
-    Color? textColour,
-    BuildContext context,
-    bool popRoutes
-  ) {
+    BaseItemDto item, Color? textColour, BuildContext context, bool popRoutes) {
   final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
   List<TextSpan> separatedArtistTextSpans = [];
 
   List<NameIdPair>? artists =
-    item.type == "MusicAlbum"
-    ? item.albumArtists
-    : item.artistItems;
+      item.type == "MusicAlbum" ? item.albumArtists : item.artistItems;
 
   if (artists?.isEmpty ?? true) {
     separatedArtistTextSpans = [
@@ -30,25 +24,22 @@ List<TextSpan> ArtistsTextSpans(
     ];
   } else {
     artists
-      ?.map((e) => TextSpan(
-      text: e.name,
-      style: TextStyle(color: textColour),
-      recognizer: TapGestureRecognizer()
-        ..onTap = () {
-          // Offline artists aren't implemented yet so we return if offline
-          if (FinampSettingsHelper.finampSettings.isOffline) return;
+        ?.map((e) => TextSpan(
+            text: e.name,
+            style: TextStyle(color: textColour),
+            recognizer: TapGestureRecognizer()
+              ..onTap = () {
+                // Offline artists aren't implemented yet so we return if offline
+                if (FinampSettingsHelper.finampSettings.isOffline) return;
 
-          jellyfinApiHelper.getItemById(e.id).then((artist) =>
-            popRoutes
-            ? Navigator.of(context).popAndPushNamed(
-                ArtistScreen.routeName,
-                arguments: artist)
-            : Navigator.of(context).pushNamed(
-                ArtistScreen.routeName,
-                arguments: artist)
-          );
-        }))
-      .forEach((artistTextSpan) {
+                jellyfinApiHelper.getItemById(e.id).then((artist) => popRoutes
+                    ? Navigator.of(context).popAndPushNamed(
+                        ArtistScreen.routeName,
+                        arguments: artist)
+                    : Navigator.of(context)
+                        .pushNamed(ArtistScreen.routeName, arguments: artist));
+              }))
+        .forEach((artistTextSpan) {
       separatedArtistTextSpans.add(artistTextSpan);
       separatedArtistTextSpans.add(TextSpan(
         text: ", ",

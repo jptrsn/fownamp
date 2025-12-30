@@ -248,7 +248,8 @@ class DownloadsHelper {
     }
   }
 
-  Future<void> removeChildFromParent({required String parentId, required List<String> childIds}) async {
+  Future<void> removeChildFromParent(
+      {required String parentId, required List<String> childIds}) async {
     var album = _downloadedParentsBox.get(parentId);
     for (String childId in childIds) {
       album?.downloadedChildren.removeWhere((key, value) => key == childId);
@@ -266,11 +267,12 @@ class DownloadsHelper {
       _downloadsLogger.info(
           "Could not find $jellyfinItemId in downloadedItemsBox, assuming already deleted");
     } else {
-      DownloadedImage? downloadedImage = getDownloadedImage(downloadedSong.song);
+      DownloadedImage? downloadedImage =
+          getDownloadedImage(downloadedSong.song);
       downloadedImage?.requiredBy.remove(jellyfinItemId);
       if (downloadedSong.requiredBy.isEmpty) {
-        _downloadsLogger.info(
-            "Item $jellyfinItemId has no dependencies, deleting files");
+        _downloadsLogger
+            .info("Item $jellyfinItemId has no dependencies, deleting files");
 
         _downloadsLogger.info(
             "Deleting ${downloadedSong.downloadId} from flutter_downloader");
@@ -308,7 +310,8 @@ class DownloadsHelper {
 
   /// This function will delete all given jellyfinItemIds regardless if they are still used
   /// by other albums/playlists
-  Future<void> deleteDownloadChildren({required List<String> jellyfinItemIds, String? deletedFor}) async {
+  Future<void> deleteDownloadChildren(
+      {required List<String> jellyfinItemIds, String? deletedFor}) async {
     final List<Future> deleteDownloadFutures = [];
     final Map<String, Directory> directoriesToCheck = {};
 
@@ -321,11 +324,11 @@ class DownloadsHelper {
             "Could not find $jellyfinItemId in downloadedItemsBox, assuming already deleted");
       } else {
         DownloadedImage? downloadedImage =
-        getDownloadedImage(downloadedSong.song);
+            getDownloadedImage(downloadedSong.song);
 
         if (deletedFor != null) {
-          _downloadsLogger
-              .info("Removing $deletedFor dependency from $jellyfinItemId, current dependencies ${downloadedSong.requiredBy}");
+          _downloadsLogger.info(
+              "Removing $deletedFor dependency from $jellyfinItemId, current dependencies ${downloadedSong.requiredBy}");
           downloadedSong.requiredBy.removeWhere((item) => item == deletedFor);
         }
 
@@ -347,7 +350,7 @@ class DownloadsHelper {
 
           if (deletedFor != null) {
             DownloadedParent? downloadedAlbumTemp =
-            _downloadedParentsBox.get(deletedFor);
+                _downloadedParentsBox.get(deletedFor);
             if (downloadedAlbumTemp != null) {
               downloadedAlbumTemp.downloadedChildren.remove(jellyfinItemId);
               await _downloadedParentsBox.put(deletedFor, downloadedAlbumTemp);
@@ -417,7 +420,8 @@ class DownloadsHelper {
     String? deletedFor,
   }) async {
     try {
-      await deleteDownloadChildren(jellyfinItemIds: jellyfinItemIds, deletedFor: deletedFor);
+      await deleteDownloadChildren(
+          jellyfinItemIds: jellyfinItemIds, deletedFor: deletedFor);
       if (deletedFor != null) {
         await deleteDownloadParent(deletedFor: deletedFor);
       }
@@ -493,7 +497,7 @@ class DownloadsHelper {
     try {
       return await FlutterDownloader.loadTasksWithRawQuery(
           query:
-              "SELECT * FROM task WHERE status = ${downloadTaskStatus.value}");
+              "SELECT * FROM task WHERE status = ${downloadTaskStatus.index}");
     } catch (e) {
       _downloadsLogger.severe(e);
       return Future.error(e);
@@ -883,8 +887,8 @@ class DownloadsHelper {
       for (String parent in parents) {
         // We don't specify deletedFor here because it could cause the parent
         // to get deleted
-        deleteFutures
-            .add(deleteParentAndChildDownloads(jellyfinItemIds: [downloadedSong.song.id]));
+        deleteFutures.add(deleteParentAndChildDownloads(
+            jellyfinItemIds: [downloadedSong.song.id]));
 
         if (parentItems[downloadedSong.song.id] == null) {
           parentItems[downloadedSong.song.id] = [];
@@ -1054,7 +1058,6 @@ class DownloadsHelper {
   ValueListenable<Box<DownloadedSong>> getDownloadedItemsListenable(
           {List<String>? keys}) =>
       _downloadedItemsBox.listenable(keys: keys);
-
 
   /// Converts a dart list to a string with the correct SQL syntax
   String _dartListToSqlList(List dartList) {

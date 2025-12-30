@@ -1,10 +1,10 @@
-import 'package:finamp/models/jellyfin_models.dart';
-import 'package:finamp/services/downloads_helper.dart';
-import 'package:finamp/services/sync_helper.dart';
+import 'package:fownamp/models/jellyfin_models.dart';
+import 'package:fownamp/services/downloads_helper.dart';
+import 'package:fownamp/services/sync_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logging/logging.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:fownamp/l10n/app_localizations.dart';
 
 class SyncAlbumOrPlaylistButton extends StatefulWidget {
   const SyncAlbumOrPlaylistButton({
@@ -19,12 +19,11 @@ class SyncAlbumOrPlaylistButton extends StatefulWidget {
   State<SyncAlbumOrPlaylistButton> createState() =>
       _SyncAlbumOrPlaylistButtonState();
 }
-class _SyncAlbumOrPlaylistButtonState
-    extends State<SyncAlbumOrPlaylistButton> {
+
+class _SyncAlbumOrPlaylistButtonState extends State<SyncAlbumOrPlaylistButton> {
   final _syncLogger = Logger("SyncPlaylistButton");
   final _downloadHelper = GetIt.instance<DownloadsHelper>();
   bool isAlbumDownloaded = false;
-
 
   void syncAlbumOrPlaylist(BuildContext context) async {
     _syncLogger.info("Syncing playlist");
@@ -44,9 +43,8 @@ class _SyncAlbumOrPlaylistButtonState
             ? AppLocalizations.of(context)!.sync
             : AppLocalizations.of(context)!.download,
         onPressed: () => syncAlbumOrPlaylist(context),
-        icon:
-        isAlbumDownloaded ?
-        const Icon(Icons.sync) :
-        const Icon(Icons.download));
+        icon: isAlbumDownloaded
+            ? const Icon(Icons.sync)
+            : const Icon(Icons.download));
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:fownamp/l10n/app_localizations.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../models/jellyfin_models.dart';
@@ -35,11 +35,13 @@ class AlbumItemListTile extends StatelessWidget {
         item.name ?? AppLocalizations.of(context)!.unknownName,
         overflow: TextOverflow.ellipsis,
       ),
-      subtitle: subtitle == null ? null : Text(
-        subtitle,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
+      subtitle: subtitle == null
+          ? null
+          : Text(
+              subtitle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
       trailing: jellyfinApiHelper.selectedMixAlbumIds.contains(item.id)
           ? const Icon(Icons.explore)
           : null,

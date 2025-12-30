@@ -1,10 +1,10 @@
-import 'package:finamp/models/finamp_models.dart';
-import 'package:finamp/models/jellyfin_models.dart';
-import 'package:finamp/services/downloads_helper.dart';
-import 'package:finamp/services/jellyfin_api_helper.dart';
-import 'package:finamp/services/sync_helper.dart';
+import 'package:fownamp/models/finamp_models.dart';
+import 'package:fownamp/models/jellyfin_models.dart';
+import 'package:fownamp/services/downloads_helper.dart';
+import 'package:fownamp/services/jellyfin_api_helper.dart';
+import 'package:fownamp/services/sync_helper.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:fownamp/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logging/logging.dart';
@@ -27,7 +27,8 @@ class SyncDownloadedAlbumsOrPlaylistsButton extends StatelessWidget {
           isGenres: false, parentItem: parent.item);
 
       if (items == null) {
-        _syncLogger.warning("Could not find any items for album or playlist id ${parent.item.id}");
+        _syncLogger.warning(
+            "Could not find any items for album or playlist id ${parent.item.id}");
         continue;
       }
       syncHelper.sync(context, parent.item, items);

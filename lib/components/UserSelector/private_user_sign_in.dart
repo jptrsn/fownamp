@@ -4,7 +4,9 @@ import 'package:get_it/get_it.dart';
 
 import '../../screens/logs_screen.dart';
 import '../../screens/view_selector.dart';
-import '../../services/jellyfin_api_helper.dart';
+import '../../services/owntone_api_helper.dart';
+import '../../services/finamp_user_helper.dart';
+import '../../models/finamp_models.dart';
 import '../error_snackbar.dart';
 
 class PrivateUserSignIn extends StatefulWidget {
@@ -15,118 +17,71 @@ class PrivateUserSignIn extends StatefulWidget {
 }
 
 class _PrivateUserSignInState extends State<PrivateUserSignIn> {
-  bool isAuthenticating = false;
+  bool isConnecting = false;
 
   String? baseUrl;
-  String? username;
-  String? password;
 
   final formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
-    // This variable is for handling shifting focus when the user presses submit.
-    // https://stackoverflow.com/questions/52150677/how-to-shift-focus-to-next-textfield-in-flutter
-    final node = FocusScope.of(context);
-
     return SafeArea(
       child: Stack(
         children: [
           Form(
             key: formKey,
-            child: AutofillGroup(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextFormField(
-                      keyboardType: TextInputType.url,
-                      autocorrect: false,
-                      decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context)!.serverUrl,
-                        hintText: "http://0.0.0.0:8096",
-                        border: const OutlineInputBorder(),
-                        suffixIcon: IconButton(
-                          color: Theme.of(context).iconTheme.color,
-                          icon: const Icon(Icons.info),
-                          onPressed: () => showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              content: Text(AppLocalizations.of(context)!
-                                  .internalExternalIpExplanation),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.of(context).pop(),
-                                  child: Text(MaterialLocalizations.of(context)
-                                      .okButtonLabel),
-                                )
-                              ],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextFormField(
+                    keyboardType: TextInputType.url,
+                    autocorrect: false,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.serverUrl,
+                      hintText: "http://192.168.1.13:3689",
+                      border: const OutlineInputBorder(),
+                      suffixIcon: IconButton(
+                        color: Theme.of(context).iconTheme.color,
+                        icon: const Icon(Icons.info),
+                        onPressed: () => showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            content: Text(
+                              "Enter your OwnTone server URL. OwnTone runs on port 3689 by default.",
                             ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: Text(MaterialLocalizations.of(context)
+                                    .okButtonLabel),
+                              )
+                            ],
                           ),
                         ),
                       ),
-                      textInputAction: TextInputAction.next,
-                      onEditingComplete: () => node.nextFocus(),
-                      validator: (value) {
-                        if (value?.isEmpty == true) {
-                          return AppLocalizations.of(context)!.emptyServerUrl;
-                        }
-                        if (!value!.trim().startsWith("http://") &&
-                            !value.trim().startsWith("https://")) {
-                          return AppLocalizations.of(context)!
-                              .urlStartWithHttps;
-                        }
-                        if (value.trim().endsWith("/")) {
-                          return AppLocalizations.of(context)!.urlTrailingSlash;
-                        }
-                        return null;
-                      },
-                      onSaved: (newValue) => baseUrl = newValue,
                     ),
+                    textInputAction: TextInputAction.done,
+                    onFieldSubmitted: (_) async => await sendForm(),
+                    validator: (value) {
+                      if (value?.isEmpty == true) {
+                        return AppLocalizations.of(context)!.emptyServerUrl;
+                      }
+                      if (!value!.trim().startsWith("http://") &&
+                          !value.trim().startsWith("https://")) {
+                        return AppLocalizations.of(context)!.urlStartWithHttps;
+                      }
+                      if (value.trim().endsWith("/")) {
+                        return AppLocalizations.of(context)!.urlTrailingSlash;
+                      }
+                      return null;
+                    },
+                    onSaved: (newValue) => baseUrl = newValue,
                   ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: TextFormField(
-                            autocorrect: false,
-                            keyboardType: TextInputType.visiblePassword,
-                            autofillHints: const [AutofillHints.username],
-                            decoration: InputDecoration(
-                              border: const OutlineInputBorder(),
-                              labelText: AppLocalizations.of(context)!.username,
-                            ),
-                            textInputAction: TextInputAction.next,
-                            onEditingComplete: () => node.nextFocus(),
-                            onSaved: (newValue) => username = newValue,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: TextFormField(
-                            autocorrect: false,
-                            obscureText: true,
-                            keyboardType: TextInputType.visiblePassword,
-                            autofillHints: const [AutofillHints.password],
-                            decoration: InputDecoration(
-                              border: const OutlineInputBorder(),
-                              labelText: AppLocalizations.of(context)!.password,
-                            ),
-                            textInputAction: TextInputAction.done,
-                            onFieldSubmitted: (_) async => await sendForm(),
-                            onSaved: (newValue) => password = newValue,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
           Align(
@@ -145,9 +100,10 @@ class _PrivateUserSignInState extends State<PrivateUserSignIn> {
                   ),
                   ElevatedButton(
                     onPressed:
-                        isAuthenticating ? null : () async => await sendForm(),
-                    child:
-                        Text(AppLocalizations.of(context)!.next.toUpperCase()),
+                        isConnecting ? null : () async => await sendForm(),
+                    child: Text(isConnecting
+                        ? "CONNECTING..."
+                        : AppLocalizations.of(context)!.next.toUpperCase()),
                   ),
                 ],
               ),
@@ -158,36 +114,48 @@ class _PrivateUserSignInState extends State<PrivateUserSignIn> {
     );
   }
 
-  /// Function to handle logging in for Widgets, including a snackbar for errors.
-  Future<void> loginHelper(
-      {required String username,
-      String? password,
-      required String baseUrl,
-      required BuildContext context}) async {
-    JellyfinApiHelper jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
+  /// Connect to OwnTone server
+  Future<void> connectToOwnTone({
+    required String baseUrl,
+    required BuildContext context,
+  }) async {
+    final ownToneApiHelper = GetIt.instance<OwnToneApiHelper>();
+    final finampUserHelper = GetIt.instance<FinampUserHelper>();
 
-    // We trim the base url in case the user accidentally added some trailing whitespce
+    // Trim the base url in case the user accidentally added trailing whitespace
     baseUrl = baseUrl.trim();
 
-    jellyfinApiHelper.baseUrlTemp = Uri.parse(baseUrl);
+    ownToneApiHelper.baseUrlTemp = Uri.parse(baseUrl);
 
     try {
-      if (password == null) {
-        await jellyfinApiHelper.authenticateViaName(username: username);
-      } else {
-        await jellyfinApiHelper.authenticateViaName(
-          username: username,
-          password: password,
-        );
-      }
+      // Test the connection by getting library info
+      final library = await ownToneApiHelper.getLibrary();
+
+      // Connection successful! Create a minimal user
+      final newUser = FinampUser(
+        id: "owntone", // Fixed ID since OwnTone has no users
+        baseUrl: baseUrl,
+        accessToken: "", // No token needed for OwnTone
+        serverId: "owntone-server",
+        views: {},
+      );
+
+      await finampUserHelper.saveUser(newUser);
 
       if (!mounted) return;
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Connected to OwnTone! ${library.songs} songs, ${library.artists} artists",
+          ),
+        ),
+      );
 
       Navigator.of(context).pushNamed(ViewSelector.routeName);
     } catch (e) {
       errorSnackbar(e, context);
-
-      // We return here to stop the function from continuing.
       return;
     }
   }
@@ -196,16 +164,14 @@ class _PrivateUserSignInState extends State<PrivateUserSignIn> {
     if (formKey.currentState?.validate() == true) {
       formKey.currentState!.save();
       setState(() {
-        isAuthenticating = true;
+        isConnecting = true;
       });
-      await loginHelper(
-        username: username!,
-        password: password,
+      await connectToOwnTone(
         baseUrl: baseUrl!,
         context: context,
       );
       setState(() {
-        isAuthenticating = false;
+        isConnecting = false;
       });
     }
   }

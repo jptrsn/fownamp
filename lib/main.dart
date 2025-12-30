@@ -47,6 +47,7 @@ import 'services/audio_service_helper.dart';
 import 'services/download_update_stream.dart';
 import 'services/downloads_helper.dart';
 import 'services/jellyfin_api_helper.dart';
+import 'services/owntone_api_helper.dart';
 import 'services/locale_helper.dart';
 import 'services/music_player_background_task.dart';
 import 'services/theme_mode_helper.dart';
@@ -92,6 +93,7 @@ void main() async {
 
 void _setupJellyfinApiData() {
   GetIt.instance.registerSingleton(JellyfinApiHelper());
+  GetIt.instance.registerSingleton(OwnToneApiHelper());
 }
 
 void _setupOfflineListenLogHelper() {

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:fownamp/services/owntone_api_helper.dart';
 import 'package:get_it/get_it.dart';
 
 import '../models/jellyfin_models.dart';
 import 'downloads_helper.dart';
 import 'finamp_settings_helper.dart';
-import 'jellyfin_api_helper.dart';
 
 /// A class that handles returning ImageProviders for Jellyfin items. This class
 /// only has one static function to handle this, and has no constructors. It's a
@@ -34,7 +34,7 @@ class AlbumImageProvider {
       }
     }
 
-    final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
+    final owntoneApiHelper = GetIt.instance<OwnToneApiHelper>();
     final downloadsHelper = GetIt.instance<DownloadsHelper>();
 
     final downloadedImage = downloadsHelper.getDownloadedImage(item);
@@ -44,7 +44,7 @@ class AlbumImageProvider {
         return null;
       }
 
-      Uri? imageUrl = jellyfinApiHelper.getImageUrl(
+      Uri? imageUrl = owntoneApiHelper.getImageUrl(
         item: item,
         maxWidth: maxWidth,
         maxHeight: maxHeight,

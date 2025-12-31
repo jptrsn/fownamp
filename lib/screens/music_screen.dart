@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:fownamp/l10n/app_localizations.dart';
+import 'package:fownamp/services/owntone_api_helper.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:logging/logging.dart';
 
-import '../models/finamp_models.dart';
-import '../services/finamp_settings_helper.dart';
-import '../services/audio_service_helper.dart';
-import '../services/finamp_user_helper.dart';
-import '../components/MusicScreen/music_screen_tab_view.dart';
 import '../components/MusicScreen/music_screen_drawer.dart';
+import '../components/MusicScreen/music_screen_tab_view.dart';
 import '../components/MusicScreen/sort_by_menu_button.dart';
 import '../components/MusicScreen/sort_order_button.dart';
-import '../components/now_playing_bar.dart';
 import '../components/error_snackbar.dart';
-import '../services/jellyfin_api_helper.dart';
+import '../components/now_playing_bar.dart';
+import '../models/finamp_models.dart';
+import '../services/audio_service_helper.dart';
+import '../services/finamp_settings_helper.dart';
+import '../services/finamp_user_helper.dart';
 
 class MusicScreen extends StatefulWidget {
   const MusicScreen({Key? key}) : super(key: key);
@@ -37,7 +37,7 @@ class _MusicScreenState extends State<MusicScreen>
 
   final _audioServiceHelper = GetIt.instance<AudioServiceHelper>();
   final _finampUserHelper = GetIt.instance<FinampUserHelper>();
-  final _jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
+  final _owntoneApiHelper = GetIt.instance<OwnToneApiHelper>();
 
   void _stopSearching() {
     setState(() {
@@ -99,7 +99,7 @@ class _MusicScreenState extends State<MusicScreen>
         .map((e) => e.key)
         .toList();
 
-    // Show the floating action button only on the albums, artists and songs tab.
+    // Show the floating action button only on the songs tab.
     if (_tabController!.index == tabList.indexOf(TabContentType.songs)) {
       return FloatingActionButton(
         tooltip: AppLocalizations.of(context)!.shuffleAll,
@@ -113,44 +113,6 @@ class _MusicScreenState extends State<MusicScreen>
         },
         child: const Icon(Icons.shuffle),
       );
-    } else if (_tabController!.index ==
-        tabList.indexOf(TabContentType.artists)) {
-      return FloatingActionButton(
-          tooltip: AppLocalizations.of(context)!.startMix,
-          onPressed: () async {
-            try {
-              if (_jellyfinApiHelper.selectedMixArtistsIds.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(
-                        AppLocalizations.of(context)!.startMixNoSongsArtist)));
-              } else {
-                await _audioServiceHelper.startInstantMixForArtists(
-                    _jellyfinApiHelper.selectedMixArtistsIds);
-              }
-            } catch (e) {
-              errorSnackbar(e, context);
-            }
-          },
-          child: const Icon(Icons.explore));
-    } else if (_tabController!.index ==
-        tabList.indexOf(TabContentType.albums)) {
-      return FloatingActionButton(
-          tooltip: AppLocalizations.of(context)!.startMix,
-          onPressed: () async {
-            try {
-              if (_jellyfinApiHelper.selectedMixAlbumIds.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(
-                        AppLocalizations.of(context)!.startMixNoSongsAlbum)));
-              } else {
-                await _audioServiceHelper.startInstantMixForAlbums(
-                    _jellyfinApiHelper.selectedMixAlbumIds);
-              }
-            } catch (e) {
-              errorSnackbar(e, context);
-            }
-          },
-          child: const Icon(Icons.explore));
     } else {
       return null;
     }

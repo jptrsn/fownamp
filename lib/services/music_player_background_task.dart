@@ -7,6 +7,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:fownamp/services/offline_listen_helper.dart';
 import 'package:flutter/foundation.dart';
+import 'package:fownamp/services/owntone_api_helper.dart';
 import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:logging/logging.dart';
@@ -15,7 +16,6 @@ import '../models/finamp_models.dart';
 import '../models/jellyfin_models.dart';
 import 'finamp_settings_helper.dart';
 import 'finamp_user_helper.dart';
-import 'jellyfin_api_helper.dart';
 
 // Largely copied from just_audio's DefaultShuffleOrder, but with a mildly
 // stupid hack to insert() to make Play Next work
@@ -97,7 +97,7 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler {
     shuffleOrder: FinampShuffleOrder(),
   );
   final _audioServiceBackgroundTaskLogger = Logger("MusicPlayerBackgroundTask");
-  final _jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
+  final _owntoneApiHelper = GetIt.instance<OwnToneApiHelper>();
   final _offlineListenLogHelper = GetIt.instance<OfflineListenLogHelper>();
   final _finampUserHelper = GetIt.instance<FinampUserHelper>();
 
@@ -147,16 +147,6 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler {
           onTrackChanged(currentItem, currentState, prevItem, prevState);
         }
       }
-
-      if (playbackState.valueOrNull != null &&
-          playbackState.valueOrNull?.processingState !=
-              AudioProcessingState.idle &&
-          playbackState.valueOrNull?.processingState !=
-              AudioProcessingState.completed &&
-          !FinampSettingsHelper.finampSettings.isOffline &&
-          !_isStopping) {
-        await _updatePlaybackProgress();
-      }
     });
 
     // Special processing for state transitions.
@@ -199,18 +189,10 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler {
 
       _isStopping = true;
 
-      // Tell Jellyfin we're no longer playing audio if we're online
-      if (!FinampSettingsHelper.finampSettings.isOffline) {
-        final playbackInfo = generateCurrentPlaybackProgressInfo();
-        if (playbackInfo != null) {
-          await _jellyfinApiHelper.stopPlaybackProgress(playbackInfo);
-        }
-      } else {
-        final currentIndex = _player.currentIndex;
-        if (_queueAudioSource.length != 0 && currentIndex != null) {
-          final item = _getQueueItem(currentIndex);
-          _offlineListenLogHelper.logOfflineListen(item);
-        }
+      final currentIndex = _player.currentIndex;
+      if (_queueAudioSource.length != 0 && currentIndex != null) {
+        final item = _getQueueItem(currentIndex);
+        _offlineListenLogHelper.logOfflineListen(item);
       }
 
       // Stop playing audio.
@@ -461,32 +443,8 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler {
         // don't submit stop events for idle tracks (at position 0 and not playing)
         (previousState.playing ||
             previousState.updatePosition != Duration.zero)) {
-      if (!isOffline) {
-        final playbackData = generatePlaybackProgressInfoFromState(
-          previousItem,
-          previousState,
-        );
-
-        if (playbackData != null) {
-          try {
-            await _jellyfinApiHelper.stopPlaybackProgress(playbackData);
-          } catch (e) {
-            _offlineListenLogHelper.logOfflineListen(previousItem);
-          }
-        }
-      } else {
+      if (FinampSettingsHelper.finampSettings.isOffline) {
         _offlineListenLogHelper.logOfflineListen(previousItem);
-      }
-    }
-
-    if (!isOffline) {
-      final playbackData = generatePlaybackProgressInfoFromState(
-        currentItem,
-        currentState,
-      );
-
-      if (playbackData != null) {
-        await _jellyfinApiHelper.reportPlaybackStart(playbackData);
       }
     }
   }
@@ -644,20 +602,6 @@ class MusicPlayerBackgroundTask extends BaseAudioHandler {
           : AudioServiceShuffleMode.none,
       repeatMode: _audioServiceRepeatMode(_player.loopMode),
     );
-  }
-
-  Future<void> _updatePlaybackProgress() async {
-    try {
-      JellyfinApiHelper jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
-
-      final playbackInfo = generateCurrentPlaybackProgressInfo();
-      if (playbackInfo != null) {
-        await jellyfinApiHelper.updatePlaybackProgress(playbackInfo);
-      }
-    } catch (e) {
-      _audioServiceBackgroundTaskLogger.severe(e);
-      return Future.error(e);
-    }
   }
 
   MediaItem _getQueueItem(int index) {

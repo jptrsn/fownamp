@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:fownamp/l10n/app_localizations.dart';
+import 'package:fownamp/services/owntone_api_helper.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../screens/splash_screen.dart';
-import '../../services/jellyfin_api_helper.dart';
 import '../../services/finamp_settings_helper.dart';
 import '../../services/music_player_background_task.dart';
 import '../error_snackbar.dart';
@@ -65,10 +65,9 @@ class _LogoutListTileState extends State<LogoutListTile> {
                       await audioHandler.stop();
                     }
 
-                    final jellyfinApiHelper =
-                        GetIt.instance<JellyfinApiHelper>();
+                    final owntoneApiHelper = GetIt.instance<OwnToneApiHelper>();
 
-                    await jellyfinApiHelper
+                    await owntoneApiHelper
                         .logoutCurrentUser()
                         .onError((_, __) {});
 

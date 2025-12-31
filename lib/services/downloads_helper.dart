@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:fownamp/services/owntone_api_helper.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
@@ -11,15 +12,13 @@ import 'package:path/path.dart' as path_helper;
 
 import 'finamp_settings_helper.dart';
 import 'finamp_user_helper.dart';
-import 'jellyfin_api.dart';
-import 'jellyfin_api_helper.dart';
 import 'get_internal_song_dir.dart';
 import '../models/jellyfin_models.dart';
 import '../models/finamp_models.dart';
 
 class DownloadsHelper {
   List<String> queue = [];
-  final _jellyfinApiData = GetIt.instance<JellyfinApiHelper>();
+  final _owntoneApiData = GetIt.instance<OwnToneApiHelper>();
   final _finampUserHelper = GetIt.instance<FinampUserHelper>();
   final _downloadedItemsBox = Hive.box<DownloadedSong>("DownloadedItems");
   final _downloadedParentsBox = Hive.box<DownloadedParent>("DownloadedParents");
@@ -127,7 +126,7 @@ class DownloadsHelper {
             "${_finampUserHelper.currentUser!.baseUrl}/Items/${item.id}/File";
 
         List<MediaSourceInfo>? mediaSourceInfo =
-            await _jellyfinApiData.getPlaybackInfo(item.id);
+            await _owntoneApiData.getPlaybackInfo(item.id);
 
         String fileName;
         Directory downloadDir = await _getDownloadDirectory(
@@ -148,14 +147,9 @@ class DownloadsHelper {
           downloadDir = Directory(downloadLocation.path);
         }
 
-        String authHeader = await getAuthHeader();
-
         String? songDownloadId = await FlutterDownloader.enqueue(
           url: songUrl,
           savedDir: downloadDir.path,
-          headers: {
-            "Authorization": authHeader,
-          },
           fileName: fileName,
           openFileFromNotification: false,
           showNotification: false,
@@ -895,7 +889,7 @@ class DownloadsHelper {
         }
 
         parentItems[downloadedSong.song.id]!
-            .add(await _jellyfinApiData.getItemById(parent));
+            .add(await _owntoneApiData.getItemById(parent));
       }
     }
 
@@ -1111,13 +1105,12 @@ class DownloadsHelper {
 
     if (_downloadedImagesBox.containsKey(item.blurHash)) return;
 
-    final imageUrl = _jellyfinApiData.getImageUrl(
+    final imageUrl = _owntoneApiData.getImageUrl(
       item: item,
       // Download original file
       quality: null,
       format: null,
     );
-    final authHeader = await getAuthHeader();
     final relativePath =
         path_helper.relative(downloadDir.path, from: downloadLocation.path);
 
@@ -1128,9 +1121,6 @@ class DownloadsHelper {
     final imageDownloadId = await FlutterDownloader.enqueue(
       url: imageUrl.toString(),
       savedDir: downloadDir.path,
-      headers: {
-        "Authorization": authHeader,
-      },
       fileName: fileName,
       openFileFromNotification: false,
       showNotification: false,

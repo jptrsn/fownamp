@@ -274,3 +274,30 @@ Map<String, dynamic> _$OwnTonePlaylistListToJson(
       'offset': instance.offset,
       'limit': instance.limit,
     };
+
+OwnToneGenre _$OwnToneGenreFromJson(Map<String, dynamic> json) => OwnToneGenre(
+      name: json['name'] as String,
+    );
+
+Map<String, dynamic> _$OwnToneGenreToJson(OwnToneGenre instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+    };
+
+OwnToneGenreList _$OwnToneGenreListFromJson(Map<String, dynamic> json) =>
+    OwnToneGenreList(
+      items: (json['items'] as List<dynamic>)
+          .map((e) => OwnToneGenre.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      total: (json['total'] as num).toInt(),
+      offset: (json['offset'] as num).toInt(),
+      limit: (json['limit'] as num).toInt(),
+    );
+
+Map<String, dynamic> _$OwnToneGenreListToJson(OwnToneGenreList instance) =>
+    <String, dynamic>{
+      'items': instance.items,
+      'total': instance.total,
+      'offset': instance.offset,
+      'limit': instance.limit,
+    };

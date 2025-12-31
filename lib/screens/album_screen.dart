@@ -5,7 +5,7 @@ import 'package:hive/hive.dart';
 
 import '../models/jellyfin_models.dart';
 import '../models/finamp_models.dart';
-import '../services/jellyfin_api_helper.dart';
+import '../services/owntone_api_helper.dart';
 import '../services/finamp_settings_helper.dart';
 import '../services/downloads_helper.dart';
 import '../components/now_playing_bar.dart';
@@ -29,7 +29,7 @@ class AlbumScreen extends StatefulWidget {
 
 class _AlbumScreenState extends State<AlbumScreen> {
   Future<List<BaseItemDto>?>? albumScreenContentFuture;
-  JellyfinApiHelper jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
+  OwnToneApiHelper owntoneApiHelper = GetIt.instance<OwnToneApiHelper>();
   final audioHandler = GetIt.instance<MusicPlayerBackgroundTask>();
 
   @override
@@ -56,7 +56,7 @@ class _AlbumScreenState extends State<AlbumScreen> {
               children: downloadedParent.downloadedChildren.values.toList(),
             );
           } else {
-            albumScreenContentFuture ??= jellyfinApiHelper.getItems(
+            albumScreenContentFuture ??= owntoneApiHelper.getItems(
               parentItem: parent,
               sortBy: "ParentIndexNumber,IndexNumber,SortName",
               includeItemTypes: "Audio",

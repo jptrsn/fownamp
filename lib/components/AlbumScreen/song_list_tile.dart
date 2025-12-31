@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:fownamp/l10n/app_localizations.dart';
+import 'package:fownamp/services/owntone_api_helper.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mini_music_visualizer/mini_music_visualizer.dart';
 
 import '../../models/jellyfin_models.dart';
-import '../../screens/add_to_playlist_screen.dart';
 import '../../screens/album_screen.dart';
 import '../../services/audio_service_helper.dart';
 import '../../services/downloads_helper.dart';
 import '../../services/finamp_settings_helper.dart';
-import '../../services/jellyfin_api_helper.dart';
 import '../../services/media_state_stream.dart';
 import '../../services/process_artist.dart';
 import '../album_image.dart';
 import '../error_snackbar.dart';
-import '../favourite_button.dart';
 import '../print_duration.dart';
 import 'downloaded_indicator.dart';
 
@@ -22,12 +20,7 @@ enum SongListTileMenuItems {
   addToQueue,
   playNext,
   replaceQueueWithItem,
-  addToPlaylist,
-  removeFromPlaylist,
-  instantMix,
   goToAlbum,
-  addFavourite,
-  removeFavourite,
 }
 
 class SongListTile extends StatefulWidget {
@@ -69,40 +62,11 @@ class SongListTile extends StatefulWidget {
 
 class _SongListTileState extends State<SongListTile> {
   final _audioServiceHelper = GetIt.instance<AudioServiceHelper>();
-  final _jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
+  final _owntoneApiHelper = GetIt.instance<OwnToneApiHelper>();
 
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-
-    /// Sets the item's favourite on the Jellyfin server.
-    Future<void> setFavourite() async {
-      try {
-        // We switch the widget state before actually doing the request to
-        // make the app feel faster (without, there is a delay from the
-        // user adding the favourite and the icon showing)
-        setState(() {
-          widget.item.userData!.isFavorite = !widget.item.userData!.isFavorite;
-        });
-
-        // Since we flipped the favourite state already, we can use the flipped
-        // state to decide which API call to make
-        final newUserData = widget.item.userData!.isFavorite
-            ? await _jellyfinApiHelper.addFavourite(widget.item.id)
-            : await _jellyfinApiHelper.removeFavourite(widget.item.id);
-
-        if (!mounted) return;
-
-        setState(() {
-          widget.item.userData = newUserData;
-        });
-      } catch (e) {
-        setState(() {
-          widget.item.userData!.isFavorite = !widget.item.userData!.isFavorite;
-        });
-        errorSnackbar(e, context);
-      }
-    }
 
     final listTile = StreamBuilder<MediaState>(
         stream: mediaStateStream,
@@ -193,10 +157,6 @@ class _SongListTileState extends State<SongListTile> {
                       height: 15,
                     ),
                   ),
-                FavoriteButton(
-                  item: widget.item,
-                  onlyIfFav: true,
-                ),
               ],
             ),
             onTap: () {
@@ -261,46 +221,6 @@ class _SongListTileState extends State<SongListTile> {
                 title: Text(AppLocalizations.of(context)!.replaceQueue),
               ),
             ),
-            if (widget.isInPlaylist)
-              PopupMenuItem<SongListTileMenuItems>(
-                enabled: !isOffline,
-                value: SongListTileMenuItems.addToPlaylist,
-                child: ListTile(
-                  leading: const Icon(Icons.playlist_add),
-                  title: Text(AppLocalizations.of(context)!.addToPlaylistTitle),
-                  enabled: !isOffline,
-                ),
-              ),
-            widget.isInPlaylist
-                ? PopupMenuItem<SongListTileMenuItems>(
-                    enabled: !isOffline,
-                    value: SongListTileMenuItems.removeFromPlaylist,
-                    child: ListTile(
-                      leading: const Icon(Icons.playlist_remove),
-                      title: Text(AppLocalizations.of(context)!
-                          .removeFromPlaylistTitle),
-                      enabled: !isOffline && widget.parentId != null,
-                    ),
-                  )
-                : PopupMenuItem<SongListTileMenuItems>(
-                    enabled: !isOffline,
-                    value: SongListTileMenuItems.addToPlaylist,
-                    child: ListTile(
-                      leading: const Icon(Icons.playlist_add),
-                      title: Text(
-                          AppLocalizations.of(context)!.addToPlaylistTitle),
-                      enabled: !isOffline,
-                    ),
-                  ),
-            PopupMenuItem<SongListTileMenuItems>(
-              enabled: !isOffline,
-              value: SongListTileMenuItems.instantMix,
-              child: ListTile(
-                leading: const Icon(Icons.explore),
-                title: Text(AppLocalizations.of(context)!.instantMix),
-                enabled: !isOffline,
-              ),
-            ),
             PopupMenuItem<SongListTileMenuItems>(
               enabled: canGoToAlbum,
               value: SongListTileMenuItems.goToAlbum,
@@ -310,22 +230,6 @@ class _SongListTileState extends State<SongListTile> {
                 enabled: canGoToAlbum,
               ),
             ),
-            widget.item.userData!.isFavorite
-                ? PopupMenuItem<SongListTileMenuItems>(
-                    value: SongListTileMenuItems.removeFavourite,
-                    child: ListTile(
-                      leading: const Icon(Icons.favorite_border),
-                      title:
-                          Text(AppLocalizations.of(context)!.removeFavourite),
-                    ),
-                  )
-                : PopupMenuItem<SongListTileMenuItems>(
-                    value: SongListTileMenuItems.addFavourite,
-                    child: ListTile(
-                      leading: const Icon(Icons.favorite),
-                      title: Text(AppLocalizations.of(context)!.addFavourite),
-                    ),
-                  ),
           ],
         );
 
@@ -363,49 +267,6 @@ class _SongListTileState extends State<SongListTile> {
             ));
             break;
 
-          case SongListTileMenuItems.addToPlaylist:
-            Navigator.of(context).pushNamed(AddToPlaylistScreen.routeName,
-                arguments: widget.item.id);
-            break;
-
-          case SongListTileMenuItems.removeFromPlaylist:
-            try {
-              await _jellyfinApiHelper.removeItemsFromPlaylist(
-                  playlistId: widget.parentId!,
-                  entryIds: [widget.item.playlistItemId!]);
-
-              if (!mounted) return;
-
-              await _jellyfinApiHelper.getItems(
-                parentItem:
-                    await _jellyfinApiHelper.getItemById(widget.item.parentId!),
-                sortBy: "ParentIndexNumber,IndexNumber,SortName",
-                includeItemTypes: "Audio",
-                isGenres: false,
-              );
-
-              if (!mounted) return;
-
-              if (widget.onDelete != null) widget.onDelete!();
-
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content:
-                    Text(AppLocalizations.of(context)!.removedFromPlaylist),
-              ));
-            } catch (e) {
-              errorSnackbar(e, context);
-            }
-            break;
-
-          case SongListTileMenuItems.instantMix:
-            await _audioServiceHelper.startInstantMixForItem(widget.item);
-
-            if (!mounted) return;
-
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text(AppLocalizations.of(context)!.startingInstantMix),
-            ));
-            break;
           case SongListTileMenuItems.goToAlbum:
             late BaseItemDto album;
             if (FinampSettingsHelper.finampSettings.isOffline) {
@@ -421,7 +282,7 @@ class _SongListTileState extends State<SongListTile> {
               // If online, get the album's BaseItemDto from the server.
               try {
                 album =
-                    await _jellyfinApiHelper.getItemById(widget.item.parentId!);
+                    await _owntoneApiHelper.getItemById(widget.item.parentId!);
               } catch (e) {
                 errorSnackbar(e, context);
                 break;
@@ -432,10 +293,6 @@ class _SongListTileState extends State<SongListTile> {
 
             Navigator.of(context)
                 .pushNamed(AlbumScreen.routeName, arguments: album);
-            break;
-          case SongListTileMenuItems.addFavourite:
-          case SongListTileMenuItems.removeFavourite:
-            await setFavourite();
             break;
           case null:
             break;

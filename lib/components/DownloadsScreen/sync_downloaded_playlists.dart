@@ -1,7 +1,7 @@
 import 'package:fownamp/models/finamp_models.dart';
 import 'package:fownamp/models/jellyfin_models.dart';
 import 'package:fownamp/services/downloads_helper.dart';
-import 'package:fownamp/services/jellyfin_api_helper.dart';
+import 'package:fownamp/services/owntone_api_helper.dart';
 import 'package:fownamp/services/sync_helper.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:fownamp/l10n/app_localizations.dart';
@@ -14,7 +14,7 @@ class SyncDownloadedAlbumsOrPlaylistsButton extends StatelessWidget {
 
   final _syncLogger = Logger("SyncDownloadedPlaylistsButton");
   final DownloadsHelper downloadsHelper = GetIt.instance<DownloadsHelper>();
-  final _jellyfinApiData = GetIt.instance<JellyfinApiHelper>();
+  final _owntoneApiData = GetIt.instance<OwnToneApiHelper>();
 
   void syncPlaylists(BuildContext context) async {
     _syncLogger.info("Syncing downloaded playlists");
@@ -23,7 +23,7 @@ class SyncDownloadedAlbumsOrPlaylistsButton extends StatelessWidget {
     List<DownloadedParent> parents = downloadsHelper.downloadedParents.toList();
 
     for (DownloadedParent parent in parents) {
-      List<BaseItemDto>? items = await _jellyfinApiData.getItems(
+      List<BaseItemDto>? items = await _owntoneApiData.getItems(
           isGenres: false, parentItem: parent.item);
 
       if (items == null) {

@@ -1,15 +1,15 @@
-import 'package:fownamp/services/finamp_settings_helper.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:fownamp/services/finamp_settings_helper.dart';
+import 'package:fownamp/services/owntone_api_helper.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../models/jellyfin_models.dart';
-import '../../services/jellyfin_api_helper.dart';
 import '../screens/artist_screen.dart';
 
 List<TextSpan> ArtistsTextSpans(
     BaseItemDto item, Color? textColour, BuildContext context, bool popRoutes) {
-  final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
+  final owntoneApiHelper = GetIt.instance<OwnToneApiHelper>();
   List<TextSpan> separatedArtistTextSpans = [];
 
   List<NameIdPair>? artists =
@@ -32,7 +32,7 @@ List<TextSpan> ArtistsTextSpans(
                 // Offline artists aren't implemented yet so we return if offline
                 if (FinampSettingsHelper.finampSettings.isOffline) return;
 
-                jellyfinApiHelper.getItemById(e.id).then((artist) => popRoutes
+                owntoneApiHelper.getItemById(e.id).then((artist) => popRoutes
                     ? Navigator.of(context).popAndPushNamed(
                         ArtistScreen.routeName,
                         arguments: artist)

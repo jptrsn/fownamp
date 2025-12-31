@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:fownamp/l10n/app_localizations.dart';
+import 'package:fownamp/services/owntone_api_helper.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../models/jellyfin_models.dart';
-import '../../services/jellyfin_api_helper.dart';
 import '../../services/generate_subtitle.dart';
 import '../album_image.dart';
 
@@ -23,7 +23,7 @@ class AlbumItemListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
+    final owntoneApiHelper = GetIt.instance<OwnToneApiHelper>();
     final subtitle = generateSubtitle(item, parentType, context);
 
     return ListTile(
@@ -42,9 +42,7 @@ class AlbumItemListTile extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-      trailing: jellyfinApiHelper.selectedMixAlbumIds.contains(item.id)
-          ? const Icon(Icons.explore)
-          : null,
+      trailing: null,
     );
   }
 }

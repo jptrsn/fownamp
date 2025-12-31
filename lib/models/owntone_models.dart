@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'jellyfin_models.dart';
 
 part 'owntone_models.g.dart';
 
@@ -344,4 +345,150 @@ class OwnTonePlaylistList {
   factory OwnTonePlaylistList.fromJson(Map<String, dynamic> json) =>
       _$OwnTonePlaylistListFromJson(json);
   Map<String, dynamic> toJson() => _$OwnTonePlaylistListToJson(this);
+}
+
+/// Genre object - OwnTone genres only have a name
+@JsonSerializable()
+class OwnToneGenre {
+  final String name;
+
+  OwnToneGenre({
+    required this.name,
+  });
+
+  factory OwnToneGenre.fromJson(Map<String, dynamic> json) =>
+      _$OwnToneGenreFromJson(json);
+  Map<String, dynamic> toJson() => _$OwnToneGenreToJson(this);
+}
+
+/// Genres list wrapper
+@JsonSerializable()
+class OwnToneGenreList {
+  final List<OwnToneGenre> items;
+  final int total;
+  final int offset;
+  final int limit;
+
+  OwnToneGenreList({
+    required this.items,
+    required this.total,
+    required this.offset,
+    required this.limit,
+  });
+
+  factory OwnToneGenreList.fromJson(Map<String, dynamic> json) =>
+      _$OwnToneGenreListFromJson(json);
+  Map<String, dynamic> toJson() => _$OwnToneGenreListToJson(this);
+}
+
+extension OwnToneArtistExtension on OwnToneArtist {
+  /// Convert OwnTone artist to Jellyfin BaseItemDto format
+  /// This allows the existing UI to work without changes
+  BaseItemDto toBaseItemDto() {
+    return BaseItemDto(
+      id: id,
+      name: name,
+      sortName: nameSort,
+      type: "MusicArtist",
+      albumCount: albumCount,
+      userData: UserItemDataDto(
+        playbackPositionTicks: 0,
+        playCount: 0,
+        isFavorite: false,
+        played: false,
+      ),
+      imageBlurHashes: artworkUrl != null ? ImageBlurHashes() : null,
+    );
+  }
+}
+
+extension OwnToneAlbumExtension on OwnToneAlbum {
+  /// Convert OwnTone album to Jellyfin BaseItemDto format
+  BaseItemDto toBaseItemDto() {
+    return BaseItemDto(
+      id: id,
+      name: name,
+      sortName: nameSort,
+      type: "MusicAlbum",
+      albumArtist: artist,
+      albumArtists: [NameIdPair(name: artist, id: artistId)],
+      productionYear: year,
+      childCount: trackCount,
+      userData: UserItemDataDto(
+        playbackPositionTicks: 0,
+        playCount: 0,
+        isFavorite: false,
+        played: false,
+      ),
+      imageBlurHashes: artworkUrl != null ? ImageBlurHashes() : null,
+    );
+  }
+}
+
+extension OwnToneTrackExtension on OwnToneTrack {
+  /// Convert OwnTone track to Jellyfin BaseItemDto format
+  BaseItemDto toBaseItemDto() {
+    return BaseItemDto(
+      id: id.toString(), // OwnTone uses int IDs for tracks
+      name: title,
+      sortName: titleSort,
+      type: "Audio",
+      album: album,
+      albumId: albumId,
+      albumArtist: albumArtist,
+      albumArtists: [NameIdPair(name: albumArtist, id: albumArtistId)],
+      artists: [artist],
+      artistItems: [NameIdPair(name: artist, id: albumArtistId)],
+      indexNumber: trackNumber,
+      parentIndexNumber: discNumber,
+      productionYear: year,
+      runTimeTicks: lengthMs * 10000, // Convert ms to ticks (1 tick = 100ns)
+      userData: UserItemDataDto(
+        playbackPositionTicks: seekMs * 10000,
+        playCount: playCount,
+        isFavorite: rating > 0,
+        played: playCount > 0,
+      ),
+      imageBlurHashes: ImageBlurHashes(),
+      genres: [genre],
+      path: path,
+    );
+  }
+}
+
+extension OwnTonePlaylistExtension on OwnTonePlaylist {
+  /// Convert OwnTone playlist to Jellyfin BaseItemDto format
+  BaseItemDto toBaseItemDto() {
+    return BaseItemDto(
+      id: id.toString(),
+      name: name,
+      type: "Playlist",
+      childCount: itemCount,
+      userData: UserItemDataDto(
+        playbackPositionTicks: 0,
+        playCount: 0,
+        isFavorite: false,
+        played: false,
+      ),
+    );
+  }
+}
+
+extension OwnToneGenreExtension on OwnToneGenre {
+  /// Convert OwnTone genre to Jellyfin BaseItemDto format
+  BaseItemDto toBaseItemDto() {
+    return BaseItemDto(
+      // OwnTone genres don't have IDs, so we'll use the name as the ID
+      // This is safe because genre names are unique
+      id: name,
+      name: name,
+      type: "MusicGenre",
+      userData: UserItemDataDto(
+        playbackPositionTicks: 0,
+        playCount: 0,
+        isFavorite: false,
+        played: false,
+      ),
+    );
+  }
 }

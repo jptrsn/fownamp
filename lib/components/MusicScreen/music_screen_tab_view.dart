@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:fownamp/components/MusicScreen/artist_item_list_tile.dart';
 import 'package:flutter/material.dart';
+import 'package:fownamp/services/owntone_api_helper.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -12,7 +13,6 @@ import '../../models/jellyfin_models.dart';
 import '../../services/downloads_helper.dart';
 import '../../services/finamp_settings_helper.dart';
 import '../../services/finamp_user_helper.dart';
-import '../../services/jellyfin_api_helper.dart';
 import '../AlbumScreen/song_list_tile.dart';
 import '../error_snackbar.dart';
 import '../first_page_progress_indicator.dart';
@@ -61,7 +61,7 @@ class _MusicScreenTabViewState extends State<MusicScreenTabView>
 
   List<BaseItemDto>? offlineSortedItems;
 
-  final _jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
+  final _owntoneApiHelper = GetIt.instance<OwnToneApiHelper>();
   final _finampUserHelper = GetIt.instance<FinampUserHelper>();
 
   String? _lastSearch;
@@ -79,7 +79,7 @@ class _MusicScreenTabViewState extends State<MusicScreenTabView>
     try {
       final sortOrder =
           widget.sortOrder?.toString() ?? SortOrder.ascending.toString();
-      final newItems = await _jellyfinApiHelper.getItems(
+      final newItems = await _owntoneApiHelper.getItems(
         parentItem: widget.tabContentType == TabContentType.playlists
             ? null
             : widget.parentItem ??

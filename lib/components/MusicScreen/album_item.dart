@@ -3,11 +3,11 @@ import 'package:fownamp/services/downloads_helper.dart';
 import 'package:fownamp/services/finamp_settings_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:fownamp/l10n/app_localizations.dart';
+import 'package:fownamp/services/owntone_api_helper.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../models/jellyfin_models.dart';
 import '../../services/audio_service_helper.dart';
-import '../../services/jellyfin_api_helper.dart';
 import '../../screens/artist_screen.dart';
 import '../../screens/album_screen.dart';
 import '../error_snackbar.dart';
@@ -16,10 +16,6 @@ import 'album_item_card.dart';
 enum _AlbumListTileMenuItems {
   addToQueue,
   playNext,
-  addFavourite,
-  removeFavourite,
-  addToMixList,
-  removeFromMixList,
 }
 
 /// This widget is kind of a shell around AlbumItemCard and AlbumItemListTile.
@@ -101,7 +97,7 @@ class _AlbumItemState extends State<AlbumItem> {
 
           final isOffline = FinampSettingsHelper.finampSettings.isOffline;
 
-          final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
+          final owntoneApiHelper = GetIt.instance<OwnToneApiHelper>();
 
           final selection = await showMenu<_AlbumListTileMenuItems>(
             context: context,
@@ -128,46 +124,6 @@ class _AlbumItemState extends State<AlbumItem> {
                   ),
                 ),
               ],
-              mutableAlbum.userData!.isFavorite
-                  ? PopupMenuItem<_AlbumListTileMenuItems>(
-                      enabled: !isOffline,
-                      value: _AlbumListTileMenuItems.removeFavourite,
-                      child: ListTile(
-                        enabled: !isOffline,
-                        leading: const Icon(Icons.favorite_border),
-                        title:
-                            Text(AppLocalizations.of(context)!.removeFavourite),
-                      ),
-                    )
-                  : PopupMenuItem<_AlbumListTileMenuItems>(
-                      enabled: !isOffline,
-                      value: _AlbumListTileMenuItems.addFavourite,
-                      child: ListTile(
-                        enabled: !isOffline,
-                        leading: const Icon(Icons.favorite),
-                        title: Text(AppLocalizations.of(context)!.addFavourite),
-                      ),
-                    ),
-              jellyfinApiHelper.selectedMixAlbumIds.contains(mutableAlbum.id)
-                  ? PopupMenuItem<_AlbumListTileMenuItems>(
-                      enabled: !isOffline,
-                      value: _AlbumListTileMenuItems.removeFromMixList,
-                      child: ListTile(
-                        enabled: !isOffline,
-                        leading: const Icon(Icons.explore_off),
-                        title:
-                            Text(AppLocalizations.of(context)!.removeFromMix),
-                      ),
-                    )
-                  : PopupMenuItem<_AlbumListTileMenuItems>(
-                      enabled: !isOffline,
-                      value: _AlbumListTileMenuItems.addToMixList,
-                      child: ListTile(
-                        enabled: !isOffline,
-                        leading: const Icon(Icons.explore),
-                        title: Text(AppLocalizations.of(context)!.addToMix),
-                      ),
-                    ),
             ],
           );
 
@@ -187,7 +143,7 @@ class _AlbumItemState extends State<AlbumItem> {
 
                 children = downloadedParent.downloadedChildren.values.toList();
               } else {
-                children = await jellyfinApiHelper.getItems(
+                children = await owntoneApiHelper.getItems(
                   parentItem: widget.album,
                   sortBy: "ParentIndexNumber,IndexNumber,SortName",
                   includeItemTypes: "Audio",
@@ -219,7 +175,7 @@ class _AlbumItemState extends State<AlbumItem> {
 
                 children = downloadedParent.downloadedChildren.values.toList();
               } else {
-                children = await jellyfinApiHelper.getItems(
+                children = await owntoneApiHelper.getItems(
                   parentItem: widget.album,
                   sortBy: "ParentIndexNumber,IndexNumber,SortName",
                   includeItemTypes: "Audio",
@@ -238,56 +194,6 @@ class _AlbumItemState extends State<AlbumItem> {
                 ));
               }
 
-              break;
-
-            case _AlbumListTileMenuItems.addFavourite:
-              try {
-                final newUserData =
-                    await jellyfinApiHelper.addFavourite(mutableAlbum.id);
-
-                if (!mounted) return;
-
-                setState(() {
-                  mutableAlbum.userData = newUserData;
-                });
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Favourite added.")));
-              } catch (e) {
-                errorSnackbar(e, context);
-              }
-              break;
-            case _AlbumListTileMenuItems.removeFavourite:
-              try {
-                final newUserData =
-                    await jellyfinApiHelper.removeFavourite(mutableAlbum.id);
-
-                if (!mounted) return;
-
-                setState(() {
-                  mutableAlbum.userData = newUserData;
-                });
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Favourite removed.")));
-              } catch (e) {
-                errorSnackbar(e, context);
-              }
-              break;
-            case _AlbumListTileMenuItems.addToMixList:
-              try {
-                jellyfinApiHelper.addAlbumToMixBuilderList(mutableAlbum);
-                setState(() {});
-              } catch (e) {
-                errorSnackbar(e, context);
-              }
-              break;
-            case _AlbumListTileMenuItems.removeFromMixList:
-              try {
-                jellyfinApiHelper.removeAlbumFromBuilderList(mutableAlbum);
-                setState(() {});
-              } catch (e) {
-                errorSnackbar(e, context);
-              }
               break;
             case null:
               break;

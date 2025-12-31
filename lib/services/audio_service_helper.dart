@@ -1,10 +1,10 @@
 import 'package:audio_service/audio_service.dart';
+import 'package:fownamp/services/owntone_api_helper.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logging/logging.dart';
 import 'package:uuid/uuid.dart';
 
 import 'finamp_user_helper.dart';
-import 'jellyfin_api_helper.dart';
 import 'finamp_settings_helper.dart';
 import 'downloads_helper.dart';
 import '../models/jellyfin_models.dart';
@@ -12,7 +12,7 @@ import 'music_player_background_task.dart';
 
 /// Just some functions to make talking to AudioService a bit neater.
 class AudioServiceHelper {
-  final _jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
+  final _owntoneApiHelper = GetIt.instance<OwnToneApiHelper>();
   final _downloadsHelper = GetIt.instance<DownloadsHelper>();
   final _audioHandler = GetIt.instance<MusicPlayerBackgroundTask>();
   final _finampUserHelper = GetIt.instance<FinampUserHelper>();
@@ -126,7 +126,7 @@ class AudioServiceHelper {
       }
     } else {
       // If online, get all audio items from the user's view
-      items = await _jellyfinApiHelper.getItems(
+      items = await _owntoneApiHelper.getItems(
         isGenres: false,
         parentItem: _finampUserHelper.currentUser!.currentView,
         includeItemTypes: "Audio",
@@ -138,51 +138,6 @@ class AudioServiceHelper {
 
     if (items != null) {
       await replaceQueueWithItem(itemList: items, shuffle: true);
-    }
-  }
-
-  /// Start instant mix from item.
-  Future<void> startInstantMixForItem(BaseItemDto item) async {
-    List<BaseItemDto>? items;
-
-    try {
-      items = await _jellyfinApiHelper.getInstantMix(item);
-      if (items != null) {
-        await replaceQueueWithItem(itemList: items, shuffle: false);
-      }
-    } catch (e) {
-      audioServiceHelperLogger.severe(e);
-      return Future.error(e);
-    }
-  }
-
-  /// Start instant mix from a selection of artists.
-  Future<void> startInstantMixForArtists(List<String> artistIds) async {
-    List<BaseItemDto>? items;
-
-    try {
-      items = await _jellyfinApiHelper.getArtistMix(artistIds);
-      if (items != null) {
-        await replaceQueueWithItem(itemList: items, shuffle: false);
-      }
-    } catch (e) {
-      audioServiceHelperLogger.severe(e);
-      return Future.error(e);
-    }
-  }
-
-  /// Start instant mix from a selection of albums.
-  Future<void> startInstantMixForAlbums(List<String> albumIds) async {
-    List<BaseItemDto>? items;
-
-    try {
-      items = await _jellyfinApiHelper.getAlbumMix(albumIds);
-      if (items != null) {
-        await replaceQueueWithItem(itemList: items, shuffle: false);
-      }
-    } catch (e) {
-      audioServiceHelperLogger.severe(e);
-      return Future.error(e);
     }
   }
 
@@ -199,7 +154,7 @@ class AudioServiceHelper {
       album: item.album ?? "Unknown Album",
       artist: item.artists?.join(", ") ?? item.albumArtist,
       artUri: _downloadsHelper.getDownloadedImage(item)?.file.uri ??
-          _jellyfinApiHelper.getImageUrl(item: item),
+          _owntoneApiHelper.getImageUrl(item: item),
       title: item.name ?? "Unknown Name",
       extras: {
         // "parentId": item.parentId,

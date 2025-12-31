@@ -5,9 +5,9 @@ import 'package:fownamp/services/finamp_settings_helper.dart';
 import 'package:fownamp/services/finamp_user_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:fownamp/services/owntone_api_helper.dart';
 import 'package:get_it/get_it.dart';
 import 'package:fownamp/services/downloads_helper.dart';
-import 'package:fownamp/services/jellyfin_api_helper.dart';
 import 'package:logging/logging.dart';
 
 import '../models/finamp_models.dart';
@@ -24,8 +24,7 @@ class SyncState {
 
 class DownloadsSyncHelper {
   final DownloadsHelper downloadsHelper = GetIt.instance<DownloadsHelper>();
-  final JellyfinApiHelper jellyfinApiHelper =
-      GetIt.instance<JellyfinApiHelper>();
+  final OwnToneApiHelper owntoneApiHelper = GetIt.instance<OwnToneApiHelper>();
   final FinampUserHelper _finampUserHelper = GetIt.instance<FinampUserHelper>();
   final Logger logger;
 

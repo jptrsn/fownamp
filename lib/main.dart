@@ -25,7 +25,6 @@ import 'models/jellyfin_models.dart';
 import 'models/locale_adapter.dart';
 import 'models/theme_mode_adapter.dart';
 import 'screens/add_download_location_screen.dart';
-import 'screens/add_to_playlist_screen.dart';
 import 'screens/album_screen.dart';
 import 'screens/artist_screen.dart';
 import 'screens/audio_service_settings_screen.dart';
@@ -46,7 +45,6 @@ import 'screens/view_selector.dart';
 import 'services/audio_service_helper.dart';
 import 'services/download_update_stream.dart';
 import 'services/downloads_helper.dart';
-import 'services/jellyfin_api_helper.dart';
 import 'services/owntone_api_helper.dart';
 import 'services/locale_helper.dart';
 import 'services/music_player_background_task.dart';
@@ -92,7 +90,6 @@ void main() async {
 }
 
 void _setupJellyfinApiData() {
-  GetIt.instance.registerSingleton(JellyfinApiHelper());
   GetIt.instance.registerSingleton(OwnToneApiHelper());
 }
 
@@ -314,8 +311,6 @@ class Finamp extends StatelessWidget {
                     MusicScreen.routeName: (context) => const MusicScreen(),
                     AlbumScreen.routeName: (context) => const AlbumScreen(),
                     ArtistScreen.routeName: (context) => const ArtistScreen(),
-                    AddToPlaylistScreen.routeName: (context) =>
-                        const AddToPlaylistScreen(),
                     PlayerScreen.routeName: (context) => const PlayerScreen(),
                     DownloadsScreen.routeName: (context) =>
                         const DownloadsScreen(),

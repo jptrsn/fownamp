@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fownamp/l10n/app_localizations.dart';
+import 'package:fownamp/services/owntone_api_helper.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 
@@ -7,7 +8,6 @@ import '../../models/jellyfin_models.dart';
 import '../../models/finamp_models.dart';
 import '../../services/finamp_settings_helper.dart';
 import '../../services/finamp_user_helper.dart';
-import '../../services/jellyfin_api_helper.dart';
 import '../../services/downloads_helper.dart';
 import '../AlbumScreen/download_dialog.dart';
 import '../confirmation_prompt_dialog.dart';
@@ -32,7 +32,7 @@ class _ArtistDownloadButtonState extends State<ArtistDownloadButton> {
   );
   Future<List<BaseItemDto>?>? _artistDownloadButtonFuture;
 
-  final _jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
+  final _owntoneApiHelper = GetIt.instance<OwnToneApiHelper>();
   final _downloadsHelper = GetIt.instance<DownloadsHelper>();
   final _finampUserHelper = GetIt.instance<FinampUserHelper>();
 
@@ -54,7 +54,7 @@ class _ArtistDownloadButtonState extends State<ArtistDownloadButton> {
           return _disabledButton;
         } else {
           // We only want to get album data if we're online
-          _artistDownloadButtonFuture ??= _jellyfinApiHelper.getItems(
+          _artistDownloadButtonFuture ??= _owntoneApiHelper.getItems(
             parentItem: widget.artist,
             includeItemTypes: "MusicAlbum",
             isGenres: false,
@@ -118,7 +118,7 @@ class _ArtistDownloadButtonState extends State<ArtistDownloadButton> {
                     } else {
                       List<Future<List<BaseItemDto>?>> albumInfoFutures = [];
                       for (var element in undownloadedAlbums) {
-                        albumInfoFutures.add(_jellyfinApiHelper.getItems(
+                        albumInfoFutures.add(_owntoneApiHelper.getItems(
                           parentItem: element,
                           sortBy: "SortName",
                           includeItemTypes: "Audio",

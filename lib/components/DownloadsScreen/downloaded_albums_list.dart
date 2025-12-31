@@ -1,6 +1,6 @@
-import 'package:fownamp/services/jellyfin_api_helper.dart';
 import 'package:fownamp/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:fownamp/services/owntone_api_helper.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../models/finamp_models.dart';
@@ -21,7 +21,7 @@ class DownloadedAlbumsList extends StatefulWidget {
 class _DownloadedAlbumsListState extends State<DownloadedAlbumsList> {
   final DownloadsHelper downloadsHelper = GetIt.instance<DownloadsHelper>();
 
-  final JellyfinApiHelper jellyfinApiHelper = JellyfinApiHelper();
+  final OwnToneApiHelper owntoneApiHelper = OwnToneApiHelper();
 
   Future<void> deleteAlbum(
       BuildContext context, DownloadedParent downloadedParent) async {

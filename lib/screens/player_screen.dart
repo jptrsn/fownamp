@@ -9,7 +9,6 @@ import 'package:get_it/get_it.dart';
 import 'package:octo_image/octo_image.dart';
 import 'package:simple_gesture_detector/simple_gesture_detector.dart';
 
-import '../components/favourite_button.dart';
 import '../services/finamp_settings_helper.dart';
 import '../services/music_player_background_task.dart';
 import '../models/jellyfin_models.dart';
@@ -19,7 +18,6 @@ import '../components/PlayerScreen/progress_slider.dart';
 import '../components/PlayerScreen/player_buttons.dart';
 import '../components/PlayerScreen/queue_button.dart';
 import '../components/PlayerScreen/playback_mode.dart';
-import '../components/PlayerScreen/add_to_playlist_button.dart';
 import '../components/PlayerScreen/sleep_timer_button.dart';
 
 final _albumImageProvider =
@@ -61,7 +59,6 @@ class PlayerScreen extends StatelessWidget {
           elevation: 0,
           actions: const [
             SleepTimerButton(),
-            AddToPlaylistButton(),
           ],
         ),
         // Required for sleep timer input
@@ -96,10 +93,6 @@ class PlayerScreen extends StatelessWidget {
                                 Align(
                                   alignment: Alignment.centerLeft,
                                   child: PlaybackMode(),
-                                ),
-                                Align(
-                                  alignment: Alignment.center,
-                                  child: _PlayerScreenFavoriteButton(),
                                 ),
                                 Align(
                                   alignment: Alignment.centerRight,
@@ -203,25 +196,5 @@ class _BlurredPlayerScreenBackground extends ConsumerWidget {
               ),
             ),
     );
-  }
-}
-
-class _PlayerScreenFavoriteButton extends StatelessWidget {
-  const _PlayerScreenFavoriteButton({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final audioHandler = GetIt.instance<MusicPlayerBackgroundTask>();
-
-    return StreamBuilder<MediaItem?>(
-        stream: audioHandler.mediaItem,
-        builder: (context, snapshot) {
-          return FavoriteButton(
-            item: snapshot.data?.extras?["itemJson"] == null
-                ? null
-                : BaseItemDto.fromJson(snapshot.data!.extras!["itemJson"]),
-            inPlayer: true,
-          );
-        });
   }
 }

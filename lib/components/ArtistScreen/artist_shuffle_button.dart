@@ -1,13 +1,13 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:fownamp/services/owntone_api_helper.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:fownamp/l10n/app_localizations.dart';
 
 import '../../models/jellyfin_models.dart';
 import '../../models/finamp_models.dart';
-import '../../services/jellyfin_api_helper.dart';
 import '../../services/audio_service_helper.dart';
 import '../../services/finamp_settings_helper.dart';
 import '../../services/downloads_helper.dart';
@@ -29,7 +29,7 @@ class _ArtistShuffleButtonState extends State<ArtistShuffleButton> {
       IconButton(onPressed: null, icon: Icon(Icons.play_arrow));
   Future<List<BaseItemDto>?>? artistShuffleButtonFuture;
 
-  final _jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
+  final _owntoneApiHelper = GetIt.instance<OwnToneApiHelper>();
   final _audioServiceHelper = GetIt.instance<AudioServiceHelper>();
 
   @override
@@ -60,7 +60,7 @@ class _ArtistShuffleButtonState extends State<ArtistShuffleButton> {
             icon: const Icon(Icons.shuffle),
           );
         } else {
-          artistShuffleButtonFuture ??= _jellyfinApiHelper.getItems(
+          artistShuffleButtonFuture ??= _owntoneApiHelper.getItems(
             parentItem: widget.artist,
             includeItemTypes: "Audio",
             sortBy: 'PremiereDate,Album,SortName',

@@ -143,11 +143,22 @@ abstract class OwnToneApi extends ChopperService {
     @Query("limit") int? limit,
   });
 
+  /// List genres
+  @FactoryConverter(
+    request: JsonConverter.requestFactory,
+    response: JsonConverter.responseFactory,
+  )
+  @Get(path: "/api/library/genres")
+  Future<Response> getGenres({
+    @Query("offset") int? offset,
+    @Query("limit") int? limit,
+  });
+
   /// Update track properties (rating, play count, etc)
   @FactoryConverter(
     request: JsonConverter.requestFactory,
   )
-  @Put(path: "/api/library/tracks/{id}")
+  @Put(path: "/api/library/tracks/{id}", optionalBody: true)
   Future<Response> updateTrack({
     @Path() required int id,
     @Query("rating") int? rating,

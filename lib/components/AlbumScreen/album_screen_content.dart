@@ -8,11 +8,9 @@ import 'package:get_it/get_it.dart';
 
 import '../../models/jellyfin_models.dart';
 import '../../services/finamp_settings_helper.dart';
-import '../../components/favourite_button.dart';
 import 'album_screen_content_flexible_space_bar.dart';
 import 'delete_button.dart';
 import 'song_list_tile.dart';
-import 'playlist_name_edit_button.dart';
 
 typedef BaseItemDtoCallback = void Function(BaseItemDto item);
 
@@ -76,10 +74,6 @@ class _AlbumScreenContentState extends State<AlbumScreenContent> {
               items: widget.children,
             ),
             actions: [
-              if (widget.parent.type == "Playlist" &&
-                  !FinampSettingsHelper.finampSettings.isOffline)
-                PlaylistNameEditButton(playlist: widget.parent),
-              FavoriteButton(item: widget.parent),
               if (GetIt.instance<DownloadsHelper>()
                   .isAlbumDownloaded(widget.parent.id))
                 DeleteButton(parent: widget.parent, items: widget.children),

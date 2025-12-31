@@ -5,10 +5,10 @@ import 'package:fownamp/services/finamp_settings_helper.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:fownamp/l10n/app_localizations.dart';
+import 'package:fownamp/services/owntone_api_helper.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../screens/album_screen.dart';
-import '../../services/jellyfin_api_helper.dart';
 import '../../services/music_player_background_task.dart';
 import '../artists_text_spans.dart';
 
@@ -19,8 +19,8 @@ class SongName extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final audioHandler = GetIt.instance<MusicPlayerBackgroundTask>();
-    final JellyfinApiHelper jellyfinApiHelper =
-        GetIt.instance<JellyfinApiHelper>();
+    final OwnToneApiHelper owntoneApiHelper =
+        GetIt.instance<OwnToneApiHelper>();
 
     final textColour =
         Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6);
@@ -55,7 +55,7 @@ class SongName extends StatelessWidget {
                           return;
                         }
 
-                        jellyfinApiHelper.getItemById(e.id).then((artist) =>
+                        owntoneApiHelper.getItemById(e.id).then((artist) =>
                             Navigator.of(context).popAndPushNamed(
                                 ArtistScreen.routeName,
                                 arguments: artist));
@@ -104,7 +104,7 @@ class SongNameContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final jellyfinApiHelper = GetIt.instance<JellyfinApiHelper>();
+    final owntoneApiHelper = GetIt.instance<OwnToneApiHelper>();
 
     final textColour =
         Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6);
@@ -118,7 +118,7 @@ class SongNameContent extends StatelessWidget {
           GestureDetector(
             onTap: songBaseItemDto == null
                 ? null
-                : () => jellyfinApiHelper
+                : () => owntoneApiHelper
                     .getItemById(songBaseItemDto!.albumId as String)
                     .then((album) => Navigator.of(context).popAndPushNamed(
                         AlbumScreen.routeName,

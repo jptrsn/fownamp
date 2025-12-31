@@ -263,6 +263,29 @@ final class _$OwnToneApi extends OwnToneApi {
   }
 
   @override
+  Future<Response<dynamic>> getGenres({
+    int? offset,
+    int? limit,
+  }) {
+    final Uri $url = Uri.parse('/api/library/genres');
+    final Map<String, dynamic> $params = <String, dynamic>{
+      'offset': offset,
+      'limit': limit,
+    };
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+      parameters: $params,
+    );
+    return client.send<dynamic, dynamic>(
+      $request,
+      requestConverter: JsonConverter.requestFactory,
+      responseConverter: JsonConverter.responseFactory,
+    );
+  }
+
+  @override
   Future<Response<dynamic>> updateTrack({
     required int id,
     int? rating,
